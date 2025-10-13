@@ -51,7 +51,7 @@ async fn main() {
                 println!("goodbye..!");
                 break;
             }
-        };
+        }.await.unwrap();
     }
 }
 
@@ -64,25 +64,24 @@ async fn login_flow(db: &Surreal<Client>) -> surrealdb::Result<()> {
     println!("password");
     let password = read_password().unwrap();
 
-    let query = format!("SELECT * FROM user where usernmae={:?}", username);
+    let query = format!("Select * from user where usernmae ={:?}", username);
     let mut response = db.query(query).await?;
     let users: Option<Vec<User>> = response.take(0)?;
 
     if let Some(users) = users {
-    if let Some(user) = users.first() {
-        if user.password == password {
-            println!("✅ Login successful! Welcome, {}.", username);
-            // journal_menu().await?;
+        if let Some(user) = users.first() {
+            if user.password == password {
+                println!("login successful! welcome {}.", username);
+                // journal_menu().await?;
+            } else {
+                println!("incorrect password..plz try again");
+            }
         } else {
-            println!("incorrect password.");
+            println!("user not found..");
         }
     } else {
-        println!("user not found..");
+        println!("no user data returned from databse..");
     }
-} else {
-    println!("no user data returned from databse..");
-}
-
 
     Ok(())
 }
