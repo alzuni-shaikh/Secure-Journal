@@ -1,40 +1,25 @@
-use std::fmt::format;
+// use std::fmt::format;
 
-use dialoguer::{Input, Select};
-use rpassword::read_password;
-use serde::{Deserialize, Serialize};
+// use dialoguer::{Input, Select};
+// use rpassword::read_password;
+// use serde::{Deserialize, Serialize};
+// use surrealdb::Surreal;
+// use surrealdb::engine::remote::ws::{Client, Ws};
+// use surrealdb::opt::auth::Root;
+// use uuid::Uuid;
+
+mod db;
+mod models;
+mod auth;
+mod menu;
+use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::{Client, Ws};
-use surrealdb::opt::auth::Root;
-use uuid::Uuid;
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-struct User {
-    username: String,
-    password: String,
-    id: Option<surrealdb::RecordId>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-struct JournalEntry {
-    id: Option<surrealdb::RecordId>,
-    user: String,
-    title: String,
-    content: String,
-}
 
 #[tokio::main]
 async fn main() {
     println!("Welcome to secure Journal app..");
 
-    let db = Surreal::new::<Ws>("localhost:8000").await.unwrap();
-    let _ = db
-        .signin(Root {
-            username: "root",
-            password: "secret",
-        })
-        .await;
-    db.use_ns("journal").use_db("database").await.unwrap();
+   let db = db::connect().await.expect("failed to connect to db");
 
     loop {
         let options = vec!["Login", "Create account", "Exit"];
@@ -44,15 +29,18 @@ async fn main() {
             .default(0)
             .interact()
             .unwrap();
-        match selection {
-            0 => login_flow(&db),
-            1 => login_flow(&db),
-            2 => list_users(&db),
+        let result = match selection {
+            0 => login_flow(&db).await,
+            1 => login_flow(&db).await,
+            2 => list_users(&db).await,
             _ => {
                 println!("goodbye..!");
                 break;
             }
-        }.await.unwrap();
+        };
+        if let Err(e) = result {
+            eprintln!(" error : {:?}", e);
+        }
     }
 }
 
@@ -87,7 +75,7 @@ async fn login_flow(db: &Surreal<Client>) -> surrealdb::Result<()> {
     Ok(())
 }
 
-async fn list_users(db: Surreal<Client>) -> surrealdb::Result<()> {
+async fn list_users(db: &Surreal<Client>) -> surrealdb::Result<()> {
     let mut response = db.query("select username from user").await?;
     let users: Vec<User> = response.take(0)?;
     println!("registered user..");
