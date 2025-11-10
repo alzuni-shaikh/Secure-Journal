@@ -19,6 +19,7 @@ pub async fn main_menu(db: &Surreal<Client>) {
             "List Users",
             "Write a new journal entry",
             "View my journal entries",
+            "Logout",
             "Exit",
         ];
         let selection = Select::new()
@@ -67,7 +68,7 @@ pub async fn main_menu(db: &Surreal<Client>) {
             _ => Ok(()),
         };
         if let Err(e) = result {
-            eprintln!("{}", "error: {e:?}".bright_red());
+            eprintln!("{}", format!("error: {:?}", e).bright_red());
         }
     }
 }

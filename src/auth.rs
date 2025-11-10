@@ -12,12 +12,25 @@ use surrealdb::engine::remote::ws::Client;
 use crate::models::{JournalEntry, User};
 
 pub async fn signup_flow(db: &Surreal<Client>) -> Result<()> {
+    //create new user
     let username = Input::<String>::new()
         .with_prompt("choose a username..")
         .interact()
         .map_err(|e| anyhow::anyhow!("input error: {e}"))?;
     println!("choose a password..");
     let password = read_password().unwrap();
+
+    //check if user exists
+    let check_query = format!("select * from user where username = {:?}", username);
+    let mut check = db.query(check_query).await?;
+    let existing: Vec<User> = check.take(0)?;
+    if !existing.is_empty() {
+        println!(
+            "{}",
+            "⚠️ Username already exists! Please choose another.".bright_red()
+        );
+        return Ok(());
+    }
 
     //confirm pass
     println!("confirm password..");
@@ -51,6 +64,7 @@ pub async fn signup_flow(db: &Surreal<Client>) -> Result<()> {
 }
 
 pub async fn login_flow(db: &Surreal<Client>) -> Result<Option<User>> {
+    //logins the user
     let username = Input::<String>::new()
         .with_prompt("username")
         .interact()
@@ -59,29 +73,31 @@ pub async fn login_flow(db: &Surreal<Client>) -> Result<Option<User>> {
     println!("password:");
     let password = read_password().unwrap();
 
-    let query = format!("select * from user where username ={:?}", username);
+    let query = format!("select * from user where username = {:?}", username);
     let mut response = db.query(query).await?;
-    let users: Option<Vec<User>> = response.take(0)?;
+    let users: Vec<User> = response.take(0)?;
 
-    if let Some(users) = users {
-        if let Some(user) = users.first() {
-            let parsed_hash = PasswordHash::new(&user.password)?;
-            if Argon2::default()
-                .verify_password(password.as_bytes(), &parsed_hash)
-                .is_ok()
-            {
-                println!("{}", format!("login successful! welcome, {}!", user.username).green());
-                return Ok(Some(user.clone()));
-            } else {
-                println!("{}", "incorrect password..".red());
-                return Ok(None);
-            }
-        } else {
-            println!("{}", "no such user found..".bright_red());
-            Ok(None)
-        }
+    //check if user exists
+    if users.is_empty() {
+        println!("{}", "no such user found..".bright_red());
+        return Ok(None);
+    }
+
+    let user = &users[0];
+
+    //parsing and hasing users creds
+    let parsed_hash = PasswordHash::new(&user.password)?;
+    if Argon2::default()
+        .verify_password(password.as_bytes(), &parsed_hash)
+        .is_ok()
+    {
+        println!(
+            "{}",
+            format!("login successful..! welcome, {}!", user.username).green()
+        );
+        Ok(Some(user.clone()))
     } else {
-        println!("{}", "no data was fetched from db..".bright_red());
+        println!("{}", "incorrect password..".red());
         Ok(None)
     }
 }
