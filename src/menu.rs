@@ -6,7 +6,7 @@ use crate::auth::{signup_flow, login_flow, list_users};
 
 pub async fn main_menu(db: &Surreal<Client>) {
     loop {
-        let options = vec!["Login", "Create account", "Exit"];
+        let options = vec!["Login", "Create account", "List Users", "Exit"];
         let selection = Select::new()
             .with_prompt("what would you like to do..")
             .items(&options)

@@ -25,8 +25,9 @@ pub async fn signup_flow(db: &Surreal<Client>) -> surrealdb::Result<()> {
         .unwrap()
         .to_string();
 
-    //insert
-    let _: Option<User> = db.create("user")
+    //insert..
+    let _: Option<User> = db
+        .create("user")
         .content(User {
             username,
             password: hashed,
@@ -49,31 +50,27 @@ pub async fn login_flow(db: &Surreal<Client>) -> surrealdb::Result<()> {
 
     let query = format!("Select * from user where username ={:?}", username);
     let mut response = db.query(query).await?;
-    let users: Option<Vec<User>> = response.take(0)?;
+    let users: Option<User> = response.take(0)?;
 
-    if let Some(users) = users {
-        if let Some(user) = users.first() {
-            let parsed_hash = PasswordHash::new(&user.password).unwrap();
-            if Argon2::default()
-                .verify_password(password.as_bytes(), &parsed_hash)
-                .is_ok()
-            {
-                println!("login succesful! welcome, {}!", username);
-            } else {
-                println!("incorrect password...");
-            }
+    if let Some(user) = users {
+        let parsed_hash = PasswordHash::new(&user.password).unwrap();
+        if Argon2::default()
+            .verify_password(password.as_bytes(), &parsed_hash)
+            .is_ok()
+        {
+            println!("login successful! welcome, {}!", username);
         } else {
-            println!("no such user found..");
+            println!("incorrect password...");
         }
     } else {
-        println!("no data fetched from db..");
+        println!("no such user found..");
     }
 
     Ok(())
 }
 
 pub async fn list_users(db: &Surreal<Client>) -> surrealdb::Result<()> {
-    let mut response = db.query("select username from user").await?;
+    let mut response = db.query("select * from user").await?;
     let users: Vec<User> = response.take(0)?;
     println!("registered user..");
     for usr in users {
