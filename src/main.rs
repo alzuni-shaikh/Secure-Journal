@@ -8,7 +8,7 @@ async fn main() {
     println!("Welcome to secure Journal App ;)");
 
     let db = db::connect().await.expect("failed to connect to db");
-    menu::main_menu(&db).await;
+    menu::main_menu(&db).await;    
 }
 
 //tomorrow's tasks:

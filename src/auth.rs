@@ -9,6 +9,23 @@ use rpassword::read_password;
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::Client;
 
+pub async fn validate_creds(username: &str, password: &str) -> Result<()> {
+    // usernmane check
+    if username.trim().is_empty() {
+        anyhow::bail!("usernmae cannot be empty..");
+    }
+    if username.len() < 3 && username.len() > 20 {
+        anyhow::bail!("the len of the name is not valid..plz try again!");
+    }
+    if username.contains(' ') {
+        anyhow::bail!("username cannot contain spaces");
+    }
+    
+    
+    
+    Ok(())
+}
+
 use crate::models::{JournalEntry, User};
 
 pub async fn signup_flow(db: &Surreal<Client>) -> Result<()> {
