@@ -69,7 +69,7 @@ pub async fn main_menu(db: &Surreal<Client>) {
             }
             6 => {
                 if let Some(user) = &curr_usr {
-                    delete_user(&db, user).await;
+                    let _ = delete_user(&db, user).await;
                     curr_usr = None;
                 } else {
                     println!("{}", "please login first..".red());
