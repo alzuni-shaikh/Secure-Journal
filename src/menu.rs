@@ -5,9 +5,11 @@ use surrealdb::engine::remote::ws::Client;
 
 use std::result::Result::Ok;
 
-use crate::auth::{
-    delete_entry, delete_user, list_entries, list_users, login_flow, new_entry, signup_flow,
-};
+use crate::auth::login::login_flow;
+use crate::auth::signup::signup_flow;
+use crate::auth::delete::delete_user;
+use crate::auth::entries::{delete_entry, list_entries, list_users, new_entry};
+
 use crate::models::User;
 
 pub async fn main_menu(db: &Surreal<Client>) {
