@@ -1,10 +1,10 @@
 mod auth;
 mod db;
-mod menu;
 mod models;
+mod common;
 
 use db::connect;
-use menu::main_menu;
+use common::utils::main_menu;
 
 #[tokio::main]
 async fn main() {
