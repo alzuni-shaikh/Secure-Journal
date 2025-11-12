@@ -7,7 +7,7 @@ use db::connect;
 use common::utils::main_menu;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     println!("Welcome to Secure Journal App ;)");
 
     let db = connect().await.expect("Failed to connect to database");

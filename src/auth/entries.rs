@@ -40,6 +40,8 @@ pub async fn new_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
             updated_at: now,
         })
         .await?;
+    
+    tokio::time::sleep(std::time::Duration::from_secs(2));
     println!("{}", "journal entry has been saved..".green());
 
     Ok(())
@@ -51,11 +53,13 @@ pub async fn delete_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
     let entries: Vec<JournalEntry> = resp.take(0)?;
 
     if entries.is_empty() {
+        tokio::time::sleep(std::time::Duration::from_millis(200));
         println!("{}", "no entries to delete..".red());
         return Ok(());
     }
 
     println!("your journal entries: ");
+    tokio::time::sleep(std::time::Duration::from_secs(2));
     for (i, entry) in entries.iter().enumerate() {
         println!("{}. {} - {}", i + 1, entry.title, entry.content);
     }
@@ -73,6 +77,7 @@ pub async fn delete_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
     if let Some(id) = &entry_to_delete.id {
         let delete_query = format!("delete {}", id);
         db.query(delete_query).await?;
+        tokio::time::sleep(std::time::Duration::from_secs(1));
         println!("{}", "journal entry deleted successfully..".green());
     } else {
         println!("{}", "err: entry has no valid ID.".red());
@@ -84,6 +89,7 @@ pub async fn delete_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
 pub async fn list_users(db: &Surreal<Client>) -> Result<()> {
     let mut response = db.query("select * from user").await?;
     let users: Vec<User> = response.take(0)?;
+    tokio::time::sleep(std::time::Duration::from_secs(2));
     println!("{}", "registered users: ".bright_green());
     for usr in users {
         println!("- {:?}", usr.username);
@@ -104,6 +110,7 @@ pub async fn list_entries(db: &Surreal<Client>, user: &User) -> Result<()> {
         );
     } else {
         println!("your journal entires: ");
+        tokio::time::sleep(std::time::Duration::from_secs(2));
         for (i, entry) in entries.iter().enumerate() {
             println!(
                 "\n{}. {} - {}\n   created at: {}\n    tags: {}\n",
