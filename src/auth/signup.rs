@@ -61,7 +61,7 @@ pub async fn signup_flow(db: &Surreal<Client>) -> Result<()> {
     }
 
     //hashing progress..
-    let bar = ProgressBar::new(100);
+    let bar = ProgressBar::new(300);
     bar.set_style(
         ProgressStyle::with_template(
             "{spinner:.blue} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {pos}% - {msg}",
@@ -87,7 +87,7 @@ pub async fn signup_flow(db: &Surreal<Client>) -> Result<()> {
     //insert..
     let spinner = ProgressBar::new_spinner();
     spinner.set_message("created your acc..");
-    spinner.enable_steady_tick(Duration::from_millis(100));
+    spinner.enable_steady_tick(Duration::from_millis(200));
     spinner.set_style(
         ProgressStyle::default_spinner()
             .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏✔")

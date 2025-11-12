@@ -18,20 +18,6 @@ async fn main() {
 
 
 //tomorrow's tasks:
-// create the working dir like this..
-// src/
-// ├── auth/
-// │   ├── mod.rs          # re-exports everything
-// │   ├── login.rs
-// │   ├── signup.rs
-// │   ├── delete.rs
-// │   └── validate.rs
-// ├── db/
-// │   ├── mod.rs
-// │   └── connection.rs
-// ├── common/
-// │   ├── error.rs
-// │   └── utils.rs
 // organized menu (optional)
 // 
 // database and storage enchancements like timestamps, tags, soft delete
