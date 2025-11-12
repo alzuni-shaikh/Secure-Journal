@@ -3,16 +3,19 @@ mod db;
 mod models;
 mod common;
 
+use anyhow::Result;
+
 use db::connect;
 use common::utils::main_menu;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Welcome to Secure Journal App ;)");
 
-    let db = connect().await.expect("Failed to connect to database");
-
+    let db = connect().await?;
     main_menu(&db).await;
+
+    Ok(())
 }
 
 
