@@ -1,5 +1,5 @@
 use crate::models::{JournalEntry, User};
-use anyhow::Result;
+use anyhow::{Ok, Result};
 use colored::*;
 use dialoguer::Input;
 use surrealdb::Surreal;
@@ -110,7 +110,7 @@ pub async fn list_entries(db: &Surreal<Client>, user: &User) -> Result<()> {
                 i + 1,
                 entry.title,
                 entry.content,
-                entry.created_at, 
+                entry.created_at,
                 if entry.tags.is_empty() {
                     "(none)".to_string()
                 } else {
@@ -119,6 +119,62 @@ pub async fn list_entries(db: &Surreal<Client>, user: &User) -> Result<()> {
             );
         }
     }
+
+    Ok(())
+}
+
+pub async fn update_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
+    let query = format!("select * from entry where user = {:?}", user.username);
+    let mut resp = db.query(query).await?;
+    let entries: Vec<JournalEntry> = resp.take(0)?;
+
+    if entries.is_empty() {
+        println!("{}", "no entries to update..".red());
+        return Ok(());
+    }
+
+    println!("your journal entries: ");
+    for (i, entry) in entries.iter().enumerate() {
+        println!("{}. {} - {}", i + 1, entry.title, entry.content);
+    }
+
+    let index = Input::<usize>::new()
+        .with_prompt("enter the num of entries you wanna update: ")
+        .interact()
+        .unwrap();
+    if index == 0 || index > entries.len() {
+        println!("{}", "invalid entry number..".red());
+        return Ok(());
+    }
+
+    let entry = &entries[index - 1];
+    let new_content = Input::<String>::new()
+        .with_prompt("new content")
+        .interact()
+        .unwrap();
+    let new_tags = Input::<String>::new()
+        .with_prompt("new tags( comma seperated)")
+        .allow_empty(true)
+        .interact()
+        .unwrap();
+    let tags: Vec<String> = new_tags
+        .split(',')
+        .map(|t| t.trim().to_string())
+        .filter(|t| !t.is_empty())
+        .collect();
+
+    let updated_at = Utc::now().to_rfc3339();
+
+    let updated_query = format!(
+        "updated {} set content: {:?}, tags: {:?}, updated_at: {:?}",
+        entry.id.as_ref().unwrap(),
+        new_content,
+        tags,
+        updated_at
+    );
+    
+    db.query(updated_query).await?;
+    println!("{}", "entry updated successfully..".bright_green());
 
     Ok(())
 }

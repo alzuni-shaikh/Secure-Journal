@@ -8,7 +8,7 @@ use std::result::Result::Ok;
 use crate::auth::login::login_flow;
 use crate::auth::signup::signup_flow;
 use crate::auth::delete::delete_user;
-use crate::auth::entries::{delete_entry, list_entries, list_users, new_entry};
+use crate::auth::entries::{delete_entry, list_entries, list_users, new_entry, update_entry};
 
 use crate::models::User;
 
@@ -22,6 +22,7 @@ pub async fn main_menu(db: &Surreal<Client>) {
             "List Users",
             "Write a new journal entry",
             "View my journal entries",
+            "Update my journal entries", 
             "Delete a journal entry",
             "Delete my account",
             "Logout",
@@ -61,7 +62,17 @@ pub async fn main_menu(db: &Surreal<Client>) {
                     Ok(())
                 }
             }
+            //
             5 => {
+                if let Some(user) = &curr_usr {
+                    update_entry(&db, user).await
+                } else {
+                    println!("{}", "no entry to update..".red());
+                    Ok(())
+                }
+            }
+            //
+            6 => {
                 if let Some(user) = &curr_usr {
                     delete_entry(&db, user).await
                 } else {
@@ -69,7 +80,7 @@ pub async fn main_menu(db: &Surreal<Client>) {
                     Ok(())
                 }
             }
-            6 => {
+            7 => {
                 if let Some(user) = &curr_usr {
                     let _ = delete_user(&db, user).await;
                     curr_usr = None;
@@ -78,12 +89,12 @@ pub async fn main_menu(db: &Surreal<Client>) {
                 }
                 Ok(())
             }
-            7 => {
+            8 => {
                 curr_usr = None;
                 println!("{}", "logged out..!".bright_yellow());
                 Ok(())
             }
-            8 => {
+            9 => {
                 println!("{}", "goodbye..!".cyan());
                 return;
             }
