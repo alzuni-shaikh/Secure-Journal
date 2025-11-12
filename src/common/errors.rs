@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum AppError {
+pub enum _AppError {
     #[error("Database error: {0}")]
     Database(#[from] surrealdb::Error),
 
@@ -15,4 +15,4 @@ pub enum AppError {
     Other(String),
 }
 
-pub type Result<T> = std::result::Result<T, AppError>;
+pub type _Result<T> = std::result::Result<T, _AppError>;
