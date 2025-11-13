@@ -11,6 +11,7 @@ async fn main() {
     println!("Welcome to Secure Journal App ;)");
 
     let db = connect().await.expect("Failed to connect to database");
+    // db.connect("file://secure_journal.db").await;
 
     main_menu(&db).await;
 }
