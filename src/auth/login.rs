@@ -10,7 +10,6 @@ use surrealdb::engine::remote::ws::Client;
 
 use crate::models::models::User;
 
-
 pub async fn login_flow(db: &Surreal<Client>) -> Result<Option<User>> {
     //logins the user
     let username = Input::<String>::new()

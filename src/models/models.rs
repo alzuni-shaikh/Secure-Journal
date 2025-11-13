@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::Client;
 

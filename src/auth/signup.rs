@@ -3,12 +3,15 @@ use colored::*;
 use dialoguer::Input;
 use indicatif::{ProgressBar, ProgressStyle};
 use rpassword::read_password;
-use std::time::Duration;
+
 use argon2::{Argon2, PasswordHasher};
 use argon2::password_hash::SaltString;
 use argon2::password_hash::rand_core::OsRng;
+
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::Client;
+
+use std::time::Duration;
 
 use crate::auth::validate::validate_creds;
 use crate::models::models::User;

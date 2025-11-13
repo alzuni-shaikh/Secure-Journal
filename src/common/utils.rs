@@ -1,18 +1,18 @@
 use colored::Colorize;
 use dialoguer::Select;
+
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::Client;
 
 use std::result::Result::Ok;
+
 use crate::auth::entries::list_entries;
 use crate::auth::delete::delete_user;
 use crate::auth::entries::{delete_entry, list_users, new_entry, update_entry};
 use crate::auth::login::login_flow;
 use crate::auth::signup::signup_flow;
 use crate::auth::entries::get_entries_for_user;
-
 use crate::helpers::export::export_to_md;
-
 use crate::models::models::User;
 
 pub async fn main_menu(db: &Surreal<Client>) {

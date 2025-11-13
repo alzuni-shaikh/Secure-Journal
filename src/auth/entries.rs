@@ -1,11 +1,11 @@
-use crate::models::models::{JournalEntry, User};
 use anyhow::{Ok, Result};
 use colored::*;
 use dialoguer::Input;
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::Client;
-
 use chrono::Utc;
+
+use crate::models::models::{JournalEntry, User};
 
 pub async fn new_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
     let title = Input::<String>::new()

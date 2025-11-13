@@ -4,9 +4,10 @@ use argon2::{
 };
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
+use rand::rngs::OsRng;
+
 use std::fs::File;
 use std::io::Write;
-use rand::rngs::OsRng;
 
 use crate::models::models::JournalEntry;
 
