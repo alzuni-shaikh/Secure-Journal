@@ -2,12 +2,13 @@ use anyhow::{Ok, Result};
 use colored::*;
 use dialoguer::Input;
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::Client;
+// use surrealdb::engine::remote::ws::Client;
 use chrono::Utc;
+use surrealdb::engine::local::Db;
 
 use crate::models::models::{JournalEntry, User};
 
-pub async fn new_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
+pub async fn new_entry(db: &Surreal<Db>, user: &User) -> Result<()> {
     let title = Input::<String>::new()
         .with_prompt("title")
         .interact()
@@ -28,7 +29,7 @@ pub async fn new_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
         .filter(|t| !t.is_empty())
         .collect();
 
-    let _ = db
+    let _: Vec<JournalEntry> = db
         .create("entry")
         .content(JournalEntry {
             id: None,
@@ -40,15 +41,14 @@ pub async fn new_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
             updated_at: now,
         })
         .await?;
-    // let _entry = created.into_iter().next().expect("Failed to create entry");
-    
+
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     println!("{}", "journal entry has been saved..".green());
 
     Ok(())
 }
 
-pub async fn delete_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
+pub async fn delete_entry(db: &Surreal<Db>, user: &User) -> Result<()> {
     let query = format!("select * from entry where user = {:?}", user.username);
     let mut resp = db.query(query).await?;
     let entries: Vec<JournalEntry> = resp.take(0)?;
@@ -87,7 +87,7 @@ pub async fn delete_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
     Ok(())
 }
 
-pub async fn list_users(db: &Surreal<Client>) -> Result<()> {
+pub async fn list_users(db: &Surreal<Db>) -> Result<()> {
     let mut response = db.query("select * from user").await?;
     let users: Vec<User> = response.take(0)?;
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
@@ -99,7 +99,7 @@ pub async fn list_users(db: &Surreal<Client>) -> Result<()> {
     Ok(())
 }
 
-pub async fn list_entries(db: &Surreal<Client>, user: &User) -> Result<()> {
+pub async fn list_entries(db: &Surreal<Db>, user: &User) -> Result<()> {
     let query = format!("select * from entry where user = {:?}", user.username);
     let mut resp = db.query(query).await?;
     let entries: Vec<JournalEntry> = resp.take(0)?;
@@ -131,7 +131,7 @@ pub async fn list_entries(db: &Surreal<Client>, user: &User) -> Result<()> {
     Ok(())
 }
 
-pub async fn update_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
+pub async fn update_entry(db: &Surreal<Db>, user: &User) -> Result<()> {
     let query = format!("select * from entry where user = {:?}", user.username);
     let mut resp = db.query(query).await?;
     let entries: Vec<JournalEntry> = resp.take(0)?;
@@ -180,7 +180,7 @@ pub async fn update_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
         tags,
         updated_at
     );
-    
+
     db.query(updated_query).await?;
     println!("{}", "entry updated successfully..".bright_green());
 
@@ -188,8 +188,11 @@ pub async fn update_entry(db: &Surreal<Client>, user: &User) -> Result<()> {
 }
 
 //
-pub async fn get_entries_for_user(db: &Surreal<Client>, user: &User) -> Result<Vec<JournalEntry>> {
-    let sql = format!("SELECT * FROM journal_entries WHERE user = '{}';", user.username);
+pub async fn get_entries_for_user(db: &Surreal<Db>, user: &User) -> Result<Vec<JournalEntry>> {
+    let sql = format!(
+        "SELECT * FROM journal_entries WHERE user = '{}';",
+        user.username
+    );
     let mut response = db.query(sql).await?;
     let entries: Vec<JournalEntry> = response.take(0)?;
     Ok(entries)

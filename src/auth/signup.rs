@@ -9,14 +9,14 @@ use argon2::password_hash::SaltString;
 use argon2::password_hash::rand_core::OsRng;
 
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::Client;
+use surrealdb::engine::local::Db;
 
 use std::time::Duration;
 
 use crate::auth::validate::validate_creds;
-use crate::models::models::User;
+use crate::models::models::{JournalEntry, User};
 
-pub async fn signup_flow(db: &Surreal<Client>) -> Result<()> {
+pub async fn signup_flow(db: &Surreal<Db>) -> Result<()> {
     //create new user
     let username = Input::<String>::new()
         .with_prompt("choose a username")
@@ -97,7 +97,7 @@ pub async fn signup_flow(db: &Surreal<Client>) -> Result<()> {
             .template("{spinner:.green} {msg}")
             .unwrap(),
     );
-    let _ = db
+    let _: Vec<JournalEntry> = db
         .create("user")
         .content(User {
             username,

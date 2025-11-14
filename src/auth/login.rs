@@ -6,11 +6,11 @@ use rpassword::read_password;
 use std::time::Duration;
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::Client;
+use surrealdb::engine::local::Db;
 
 use crate::models::models::User;
 
-pub async fn login_flow(db: &Surreal<Client>) -> Result<Option<User>> {
+pub async fn login_flow(db: &Surreal<Db>) -> Result<Option<User>> {
     //logins the user
     let username = Input::<String>::new()
         .with_prompt("username")

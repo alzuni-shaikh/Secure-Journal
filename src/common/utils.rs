@@ -1,9 +1,8 @@
 use colored::Colorize;
 use dialoguer::Select;
 
+use surrealdb::engine::local::Db;
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::Client;
-
 use std::result::Result::Ok;
 
 use crate::auth::delete::delete_user;
@@ -16,7 +15,7 @@ use crate::helpers::export::export_to_md;
 use crate::helpers::import::import_md;
 use crate::models::models::User;
 
-pub async fn main_menu(db: &Surreal<Client>) {
+pub async fn main_menu(db: &Surreal<Db>) {
     let mut curr_usr: Option<User> = None;
 
     loop {
@@ -123,7 +122,7 @@ pub async fn main_menu(db: &Surreal<Client>) {
             9 => {
                 println!("{}", "enter path to .md file:".cyan());
                 let mut path = String::new();
-                std::io::stdin().read_line(&mut path);
+                let _ = std::io::stdin().read_line(&mut path);
                 let path = path.trim();
 
                 match import_md(path) {

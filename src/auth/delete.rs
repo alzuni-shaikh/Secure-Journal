@@ -2,11 +2,11 @@ use anyhow::{Ok, Result};
 use colored::*;
 use dialoguer::Confirm;
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::Client;
+use surrealdb::engine::local::Db;
 
 use crate::models::models::User;
 
-pub async fn delete_user(db: &Surreal<Client>, user: &User) -> Result<()> {
+pub async fn delete_user(db: &Surreal<Db>, user: &User) -> Result<()> {
     let confirm = Confirm::new()
         .with_prompt(format!(
             "are you sure you wanna delete '{}' and all their entries..?",
