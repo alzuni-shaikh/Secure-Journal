@@ -77,12 +77,33 @@ Your password is hashed with **Argon2**, and entries are encrypted using **rpass
 secure-journal/
 │
 ├── src/
-│   ├── main.rs
-│   ├── auth.rs
-│   ├── db.rs
-│   ├── menu.rs
-│   └── models.rs
-│
+    ├── main.rs
+    ├── db.rs
+    │--auth
+    |    |--delete.rs
+    |    |--entires.rs
+    |    |--login.rs
+    |    |--mod.rs
+    |    |--signup.rs
+    |    |--validate.rs
+    |--common
+    |   |--error.rs 
+    |   |--mod.rs
+    |   |--utils.rs
+    |
+    |--helpers
+    |   |--export.rs
+    |   |--import.rs
+    |   |--mod.rs
+    |
+    |--models
+    |   |--mod.rs
+    |   |--models.rs
+    |
+   /
+  /
+ /
+| 
 ├── Cargo.toml
 └── README.md
 ```
@@ -92,8 +113,6 @@ secure-journal/
 ## 🔮 Future Plans
 
 * [ ] Encrypted cloud sync option
-* [ ] Databse and Storage enhancements
-* [ ] Exporting journal as .pdf or .md
 * [ ] Integrating Axum
 * [ ] Adding a UI framework like Yew/Dioxus
 

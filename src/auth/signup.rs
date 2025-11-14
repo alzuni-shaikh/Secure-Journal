@@ -14,7 +14,7 @@ use surrealdb::engine::local::Db;
 use std::time::Duration;
 
 use crate::auth::validate::validate_creds;
-use crate::models::models::{JournalEntry, User};
+use crate::models::models::User;
 
 pub async fn signup_flow(db: &Surreal<Db>) -> Result<()> {
     //create new user
