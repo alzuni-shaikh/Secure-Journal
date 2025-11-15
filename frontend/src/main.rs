@@ -9,6 +9,10 @@ use crate::Code::Home;
 use dioxus::prelude::*;
 use state::AppState;
 
+//tasks for tomorrow
+// added pages section
+// integrate cloud of file storage option 
+
 #[derive(Debug, Clone, Routable, PartialEq)]
 #[rustfmt::skip]
 pub enum Route {
