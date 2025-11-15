@@ -22,5 +22,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
 //tomorrow's tasks: 
+// cloud integration 
 // integrate axum which integrates with surrealdb
 // add a UI framework like dioxus/yew 
