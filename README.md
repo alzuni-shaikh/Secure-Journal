@@ -10,15 +10,15 @@
 <div align="center">
 
 ### 🎯 Main Interface
-![Main Interface](path/to/image1.png)
+![Main Interface](/home/ibrahim/Music/secureJ3.png)
 *Clean code structure with async main function and modular design*
 
 ### 📝 Journal Operations
-![Journal Operations](path/to/image2.png)
+![Journal Operations](/home/ibrahim/Music/secureJ2.png)
 *Create accounts, write entries, and manage your journal with ease*
 
 ### ✨ Full Workflow
-![Complete Workflow](path/to/image3.png)
+![Complete Workflow](/home/ibrahim/Music/secureJ1.png)
 *From account creation to entry management - see the full experience*
 
 </div>
