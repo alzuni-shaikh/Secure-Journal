@@ -1,8 +1,27 @@
-
 # 🛡️ Secure Journal App
 
 > *Your thoughts deserve the same protection as your passwords.*
 > A beautifully minimal, end-to-end secure journal built with Rust — where privacy, performance, and design meet.
+
+---
+
+## 📸 Preview
+
+<div align="center">
+
+### 🎯 Main Interface
+![Main Interface](/home/ibrahim/Music/secureJ3.png)
+*Clean code structure with async main function and modular design*
+
+### 📝 Journal Operations
+![Journal Operations](/home/ibrahim/Music/secureJ2.png)
+*Create accounts, write entries, and manage your journal with ease*
+
+### ✨ Full Workflow
+![Complete Workflow](/home/ibrahim/Music/secureJ1.png)
+*From account creation to entry management - see the full experience*
+
+</div>
 
 ---
 
@@ -11,7 +30,7 @@
 **Secure Journal App** is a private journaling tool built in Rust that keeps your notes safe and encrypted.
 Every entry is protected with **Argon2 password hashing** and **rpassword-based encryption**, ensuring that your data stays truly yours — even offline.
 
-This isn’t just a journal — it’s a **fortress for your thoughts**.
+This isn't just a journal — it's a **fortress for your thoughts**.
 
 ---
 
@@ -21,6 +40,8 @@ This isn’t just a journal — it’s a **fortress for your thoughts**.
 * 🧩 **Strong Password Hashing** — Implements [`argon2`](https://crates.io/crates/argon2) to hash and verify master passwords.
 * ⚡ **Async & Fast** — Powered by [`tokio`](https://crates.io/crates/tokio) for asynchronous, non-blocking operations.
 * 🎨 **Colorized CLI Experience** — Beautiful terminal output with [`colorized`](https://crates.io/crates/colorized) for clear and intuitive interaction.
+* 🌐 **Modern Web Interface** — Built with [`Dioxus`](https://dioxuslabs.com) for a reactive, performant frontend experience.
+* 🚀 **RESTful API Backend** — Powered by [`Axum`](https://docs.rs/axum) for fast, ergonomic HTTP services.
 * 💾 **Next-Gen Database** — Uses [`SurrealDB`](https://surrealdb.com) for flexible and secure data storage.
 * 🧰 **Robust Error Handling** — Managed with [`anyhow`](https://crates.io/crates/anyhow) for clear, user-friendly error messages.
 * 📦 **Serialization Made Simple** — Data structures powered by [`serde`](https://crates.io/crates/serde) for seamless serialization and deserialization.
@@ -31,12 +52,14 @@ This isn’t just a journal — it’s a **fortress for your thoughts**.
 
 | Layer             | Technology             | Purpose                                    |
 | :---------------- | :--------------------- | :----------------------------------------- |
+| 🖥️ Frontend       | **Dioxus**             | Reactive web interface with Rust           |
+| 🌐 Backend API    | **Axum**               | High-performance async HTTP server         |
 | 🗄️ Database      | **SurrealDB**          | Secure, flexible data persistence          |
 | 🔒 Encryption     | **rpassword + argon2** | Protects journal access and data integrity |
 | ⚙️ Runtime        | **Tokio**              | Async operations & performance             |
 | 🧰 Error Handling | **anyhow**             | Simplified and consistent error reporting  |
 | 🧱 Serialization  | **Serde**              | Efficient and safe data handling           |
-| 🎨 UI             | **Colorized**          | Clean and vivid command-line experience    |
+| 🎨 CLI UI         | **Colorized**          | Clean and vivid command-line experience    |
 
 ---
 
@@ -59,10 +82,25 @@ cd secure-journal
 
 ### 3️⃣ Build & Run
 
+#### CLI Version
 ```bash
+cd backend
 cargo build --release
 cargo run
 ```
+
+#### Web Interface (Dioxus + Axum)
+```bash
+# Terminal 1 - Start the backend API
+cd backend
+cargo run
+
+# Terminal 2 - Start the frontend
+cd frontend
+dx serve
+```
+
+The web interface will be available at `http://localhost:8080`
 
 ### 4️⃣ Create Your Master Password
 
@@ -75,59 +113,111 @@ Your password is hashed with **Argon2**, and entries are encrypted using **rpass
 
 ```
 secure-journal/
-│->backend/
-  |--Cargo.toml 
-  ├── src/
-    ├── main.rs
-    ├── db.rs
-    │--auth/
-    |    |--delete.rs
-    |    |--entires.rs
-    |    |--login.rs
-    |    |--mod.rs
-    |    |--signup.rs
-    |    |--validate.rs
-    |--common/
-    |   |--error.rs 
-    |   |--mod.rs
-    |   |--utils.rs
-    |
-    |--helpers/
-    |   |--export.rs
-    |   |--import.rs
-    |   |--mod.rs
-    |
-    |--models/
-    |   |--mod.rs
-    |   |--models.rs
-    |
-   /
-  /
- /
-│-->frontend
-  |--Cargo.toml 
-  |--Dioxus.toml 
-  |--tailwind.css
-  |--assets/
-    |--main.css 
-    |--tailwind.css 
-  |--src/
-    |--main.rs
-    /
-  /
-/
-|
+│
+├── backend/
+│   ├── Cargo.toml
+│   └── src/
+│       ├── main.rs
+│       ├── db.rs
+│       ├── api/              # Axum API routes
+│       │   ├── mod.rs
+│       │   └── routes.rs
+│       ├── auth/
+│       │   ├── delete.rs
+│       │   ├── entries.rs
+│       │   ├── login.rs
+│       │   ├── mod.rs
+│       │   ├── signup.rs
+│       │   └── validate.rs
+│       ├── common/
+│       │   ├── error.rs
+│       │   ├── mod.rs
+│       │   └── utils.rs
+│       ├── helpers/
+│       │   ├── export.rs
+│       │   ├── import.rs
+│       │   └── mod.rs
+│       └── models/
+│           ├── mod.rs
+│           └── models.rs
+│
+├── frontend/
+│   ├── Cargo.toml
+│   ├── Dioxus.toml
+│   ├── tailwind.css
+│   ├── assets/
+│   │   ├── main.css
+│   │   └── tailwind.css
+│   └── src/
+        ├── components/
+              ├── mod.rs
+              ├── navbar.rs
+        ├── pages/
+              ├── entries.rs
+              ├── home.rs
+              ├── login.rs
+              ├── mod.rs
+              ├── new_entry.rs
+              ├── signup.rs
+        ├── api.rs
+        ├── models.rs
+        ├── state.rs
+        └── main.rs
+│
 ├── Cargo.toml
 └── README.md
 ```
 
 ---
 
+## 🎯 Usage
+
+### CLI Interface
+
+```bash
+# Create an account
+cargo run
+> Create account
+
+# Login
+> Login
+username: yourusername
+password: ********
+
+# Write entries
+> Write a new journal entry
+title: My First Entry
+content: Today was amazing...
+
+# View entries
+> View my journal entries
+
+# Delete entries
+> Delete a journal entry
+
+# Logout
+> Logout
+```
+
+### Web Interface
+
+Access the modern web UI at `http://localhost:8080` with:
+- User authentication
+- Rich text editor for entries
+- Beautiful, responsive design
+- Real-time updates
+
+---
+
 ## 🔮 Future Plans
 
+* [x] Integrating Axum for RESTful API
+* [x] Adding Dioxus for modern web interface
+* [x] Export to multiple formats (PDF, JSON, etc.)
 * [ ] Encrypted cloud sync option
-* [ ] Integrating Axum
-* [ ] Adding a UI framework like Yew/Dioxus
+* [ ] Mobile app support
+* [ ] Markdown support in entries
+* [ ] Entry search and filtering
 
 ---
 
@@ -140,3 +230,15 @@ secure-journal/
 ## 🛠️ License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+## 📧 Contact
+
+For questions or feedback, please open an issue on GitHub.

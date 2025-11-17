@@ -13,6 +13,10 @@ use crate::pages::home::Home;
 // use crate::Code::Home;
 use state::AppState;
 
+//tasks for tomorrow
+// added pages section
+// integrate cloud of file storage option 
+
 #[derive(Debug, Clone, Routable, PartialEq)]
 #[rustfmt::skip]
 pub enum Route {
