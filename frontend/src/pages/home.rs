@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use crate::{components::Navbar, Route, state::AppState};
+use crate::{components::navbar::Navbar, Route, state::AppState};
 
 #[component]
 pub fn Home() -> Element {

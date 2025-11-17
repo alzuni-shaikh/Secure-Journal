@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use crate::{components::Navbar, models::JournalEntry, Route, state::AppState};
+use crate::{components::navbar::Navbar, models::JournalEntry, Route, state::AppState};
 
 #[component]
 pub fn Entries() -> Element {
