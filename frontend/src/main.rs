@@ -4,9 +4,13 @@ mod models;
 mod pages;
 mod state;
 
-use crate::Code::Home;
-
 use dioxus::prelude::*;
+use crate::pages::login::Login;
+use crate::pages::signup::Signup;
+use crate::pages::entries::Entries;
+use crate::pages::new_entry::NewEntry;
+use crate::pages::home::Home;
+// use crate::Code::Home;
 use state::AppState;
 
 //tasks for tomorrow
