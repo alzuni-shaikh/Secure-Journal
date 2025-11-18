@@ -12,7 +12,8 @@ use tower_http::cors::CorsLayer;
 use crate::auth::login::login_api;
 use crate::auth::signup::signup_api;
 use crate::common::utils::main_menu;
-use crate::db::connect;
+use crate::db::{connect, load_users, save_users};
+use crate::models::models::User;
 use surrealdb::Surreal;
 use surrealdb::engine::local::Db;
 
@@ -25,25 +26,31 @@ struct AppState {
 async fn main() -> anyhow::Result<()> {
     let db = connect().await?;
     
+    let users: Vec<User> = load_users().await?;
+
     let args: Vec<String> = std::env::args().collect();
-    
     if args.len() > 1 && args[1] == "cli" {
         main_menu(&db).await;
+        // Save DB before exiting CLI
+        save_users(&users).await?;
         return Ok(());
     }
-    
+
     let state = Arc::new(AppState { db });
 
     let app = Router::new()
         .route("/api/login", post(api_login))
         .route("/api/signup", post(api_signup))
         .layer(CorsLayer::permissive())
-        .with_state(state);
+        .with_state(state.clone());
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3001").await?;
     println!("Server running on http://127.0.0.1:3001");
     
     axum::serve(listener, app).await?;
+    
+    load_users().await?;
+    save_users(&users).await?;
 
     Ok(())
 }
@@ -71,7 +78,7 @@ async fn api_login(
         }),
         Ok(None) => Json(AuthResponse {
             ok: false,
-            message: "Invalid credentials".to_string(),
+            message: "Invalid credentials".into(),
         }),
         Err(e) => Json(AuthResponse {
             ok: false,
