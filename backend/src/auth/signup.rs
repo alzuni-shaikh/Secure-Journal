@@ -5,11 +5,12 @@ use colored::Colorize;
 use serde::Deserialize;
 use std::time::Duration;
 use rpassword::read_password;
+
 use argon2::{Argon2, PasswordHasher};
-use argon2::password_hash::SaltString;
+use argon2::password_hash::{SaltString, rand_core::OsRng};
+
 use crate::auth::validate::validate_creds;
 use indicatif::{ProgressBar, ProgressStyle};
-use argon2::password_hash::rand_core::OsRng;
 
 #[derive(Deserialize)]
 pub struct AuthRequest {
@@ -18,19 +19,22 @@ pub struct AuthRequest {
 }
 
 pub async fn signup_flow(db: &DbPool) -> Result<()> {
+    // Ask username
     let username = Input::<String>::new()
         .with_prompt("Choose a Username")
         .interact()?;
 
+    // Ask password
     println!("Choose a Password:");
     let password = read_password()?;
 
+    // Validate password rules
     if let Err(e) = validate_creds(&username, &password) {
         println!("{}", format!("{}", e).bright_red());
         return Ok(());
     }
 
-    // Spinner: checking existence
+    // Spinner: check if user exists
     let spinner = ProgressBar::new_spinner();
     spinner.set_message("Checking if username is available..");
     spinner.enable_steady_tick(Duration::from_millis(50));
@@ -61,7 +65,7 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
         return Ok(());
     }
 
-    // Hashing progress animation
+    // Hashing Animation
     let bar = ProgressBar::new(100);
     bar.set_style(
         ProgressStyle::with_template(
@@ -74,19 +78,18 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
 
     for i in 0..100 {
         bar.set_position(i);
-        std::thread::sleep(Duration::from_millis(30));
+        std::thread::sleep(Duration::from_millis(20));
     }
 
-    // Hash password
+    // Hash password using Argon2
     let salt = SaltString::generate(&mut OsRng);
     let hashed = Argon2::default()
-        .hash_password(password.as_bytes(), &salt)
-        .unwrap()
+        .hash_password(password.as_bytes(), &salt)?
         .to_string();
 
     bar.finish_with_message("Password Hashed Successfully..");
 
-    // Insert user
+    // Insert new user
     let spinner = ProgressBar::new_spinner();
     spinner.set_message("Creating your account :)");
     spinner.enable_steady_tick(Duration::from_millis(100));

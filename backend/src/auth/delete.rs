@@ -1,12 +1,11 @@
 use anyhow::{Ok, Result};
 use colored::*;
 use dialoguer::Confirm;
-use surrealdb::Surreal;
-use surrealdb::engine::local::Db;
 
 use crate::models::models::User;
+use crate::db::DbPool;
 
-pub async fn delete_user(db: &Surreal<Db>, user: &User) -> Result<()> {
+pub async fn delete_user(db: &DbPool, user: &User) -> Result<()> {
     let confirm = Confirm::new()
         .with_prompt(format!(
             "Are you sure you wanna delete '{}' and all their entries?",
@@ -15,18 +14,23 @@ pub async fn delete_user(db: &Surreal<Db>, user: &User) -> Result<()> {
         .default(false)
         .interact()
         .unwrap();
+
     if !confirm {
         println!("{}", "Deletion cancelled..".yellow());
         return Ok(());
     }
 
-    //del usr
-    let query_user = format!("delete user where username = {:?}", user.username);
-    db.query(query_user).await?;
+    // Delete journal entries belonging to the user
+    sqlx::query("DELETE FROM entries WHERE user_id = ?")
+        .bind(user.id)
+        .execute(db)
+        .await?;
 
-    //del journal entry
-    let query_entries = format!("delete entry where user = {:?}", user.username);
-    db.query(query_entries).await?;
+    // Delete the user
+    sqlx::query("DELETE FROM users WHERE id = ?")
+        .bind(user.id)
+        .execute(db)
+        .await?;
 
     println!(
         "{}",

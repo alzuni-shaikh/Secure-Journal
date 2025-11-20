@@ -1,9 +1,9 @@
 use colored::Colorize;
 use dialoguer::Select;
+use sqlx::Sqlite;
 
-use surrealdb::engine::local::Db;
-use surrealdb::Surreal;
 use std::result::Result::Ok;
+use sqlx::Pool;
 
 use crate::auth::delete::delete_user;
 use crate::auth::entries::get_entries_for_user;
@@ -15,7 +15,7 @@ use crate::helpers::export::export_to_md;
 use crate::helpers::import::import_md;
 use crate::models::models::User;
 
-pub async fn main_menu(db: &Surreal<Db>) {
+pub async fn main_menu(db: &Pool<Sqlite>) {
     let mut curr_usr: Option<User> = None;
 
     loop {

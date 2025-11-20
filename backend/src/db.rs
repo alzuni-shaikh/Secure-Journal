@@ -4,10 +4,11 @@ use sqlx::{Pool, Sqlite, SqlitePool};
 pub type DbPool = Pool<Sqlite>;
 
 pub async fn init_db() -> Result<DbPool> {
-    // let pool = SqlitePool::connect("sqlite:journal.db").await?;
-    // let pool = SqlitePool::connect("/home/ibrahim/code/rust_programming/secure_journal/journal.db").await?;
     std::fs::create_dir_all("data")?;
+    // let pool = SqlitePool::connect("data/journal.db").await?;\
+    // let pool = SqlitePool::connect("sqlite://journal.db").await?; //or
     let pool = SqlitePool::connect("data/journal.db").await?;
+    
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS users (

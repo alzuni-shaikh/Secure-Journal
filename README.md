@@ -123,12 +123,21 @@ secure-journal/
 │       │   ├── mod.rs
 │       │   └── routes.rs
 │       ├── auth/
-│       │   ├── delete.rs
-│       │   ├── entries.rs
-│       │   ├── login.rs
-│       │   ├── mod.rs
-│       │   ├── signup.rs
-│       │   └── validate.rs
+│       │     ├── api 
+│       │     │     ├── login_api.rs
+│       │     │     ├── mod.rs
+│       │     │     ├── signup_api.rs
+│       │     ├── http 
+│       │     │     ├── login_handler.rs
+│       │     │     ├── mod.rs
+│       │     │     ├── signup_handler.rs
+│       │     │
+│       │     ├── delete.rs
+│       │     ├── entries.rs
+│       │     ├── login.rs
+│       │     ├── mod.rs
+│       │     ├── signup.rs
+│       │     └── validate.rs
 │       ├── common/
 │       │   ├── error.rs
 │       │   ├── mod.rs

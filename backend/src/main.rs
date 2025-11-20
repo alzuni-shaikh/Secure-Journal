@@ -1,19 +1,15 @@
 mod auth;
+mod common;
 mod db;
 mod helpers;
 mod models;
 
-use axum::Server;
 use auth::api::{login_api, signup_api};
-use axum::{
-    Router,
-    extract::{Json, State},
-    routing::post,
-};
+use axum::extract::{Json, State};
+use common::utils::main_menu;
 use db::DbPool;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tower_http::cors::{Any, CorsLayer};
 
 pub struct AppState {
     pub db: DbPool,
@@ -22,22 +18,7 @@ pub struct AppState {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let db = db::init_db().await?;
-
-    let app_state = Arc::new(AppState { db });
-
-    let _ = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods(Any);
-    let app: Router<_, _> = Router::new()
-        .route("/api/signup", post(api_signup))
-        .route("/api/login", post(api_login))
-        .with_state(app_state);
-        // .layer(cors);
-    let addr = ([0, 0, 0, 0], 3000).into();
-    println!("Server running on http://{}", addr);
-
-    Server::bind(&addr).serve(app.into_make_service()).await?;
-
+    main_menu(&db).await;
     Ok(())
 }
 

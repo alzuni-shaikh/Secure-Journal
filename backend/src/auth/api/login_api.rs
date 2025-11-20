@@ -19,7 +19,7 @@ pub async fn login_api(pool: &DbPool, username: &str, password: &str) -> Result<
         // verify password
         if verify(password, &password_hash)? {
             let user = User {
-                id: Some(id),
+                id: id,
                 username,
                 password_hash,
                 password: None, 
