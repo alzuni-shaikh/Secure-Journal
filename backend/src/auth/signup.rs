@@ -3,7 +3,7 @@ use dialoguer::Input;
 use crate::db::DbPool;
 use colored::Colorize;
 use serde::Deserialize;
-use std::time::Duration;
+use tokio::time::{sleep, Duration};
 use rpassword::read_password;
 
 use argon2::{Argon2, PasswordHasher};
@@ -19,22 +19,22 @@ pub struct AuthRequest {
 }
 
 pub async fn signup_flow(db: &DbPool) -> Result<()> {
-    // Ask username
+    // Username
     let username = Input::<String>::new()
         .with_prompt("Choose a Username")
         .interact()?;
 
-    // Ask password
+    // Password
     println!("Choose a Password:");
     let password = read_password()?;
 
-    // Validate password rules
+    // Validate input
     if let Err(e) = validate_creds(&username, &password) {
         println!("{}", format!("{}", e).bright_red());
         return Ok(());
     }
 
-    // Spinner: check if user exists
+    // Spinner checking if username exists
     let spinner = ProgressBar::new_spinner();
     spinner.set_message("Checking if username is available..");
     spinner.enable_steady_tick(Duration::from_millis(50));
@@ -45,10 +45,13 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
             .unwrap(),
     );
 
-    let existing = sqlx::query("SELECT id FROM users WHERE username = ?")
-        .bind(&username)
-        .fetch_optional(db)
-        .await?;
+    // FIXED: SQLite placeholders (?1)
+    let existing = sqlx::query(
+        "SELECT id FROM users WHERE username = ?1"
+    )
+    .bind(&username)
+    .fetch_optional(db)
+    .await?;
 
     spinner.finish_and_clear();
 
@@ -65,7 +68,7 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
         return Ok(());
     }
 
-    // Hashing Animation
+    // Hash animation (non-blocking)
     let bar = ProgressBar::new(100);
     bar.set_style(
         ProgressStyle::with_template(
@@ -78,10 +81,10 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
 
     for i in 0..100 {
         bar.set_position(i);
-        std::thread::sleep(Duration::from_millis(20));
+        sleep(Duration::from_millis(12)).await;
     }
 
-    // Hash password using Argon2
+    // Hash password using Argon2id
     let salt = SaltString::generate(&mut OsRng);
     let hashed = Argon2::default()
         .hash_password(password.as_bytes(), &salt)?
@@ -89,7 +92,7 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
 
     bar.finish_with_message("Password Hashed Successfully..");
 
-    // Insert new user
+    // Insert user
     let spinner = ProgressBar::new_spinner();
     spinner.set_message("Creating your account :)");
     spinner.enable_steady_tick(Duration::from_millis(100));
@@ -100,11 +103,14 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
             .unwrap(),
     );
 
-    sqlx::query("INSERT INTO users (username, password_hash) VALUES (?, ?)")
-        .bind(&username)
-        .bind(&hashed)
-        .execute(db)
-        .await?;
+    // FIXED: SQLite insert syntax
+    sqlx::query(
+        "INSERT INTO users (username, password_hash) VALUES (?1, ?2)"
+    )
+    .bind(&username)
+    .bind(&hashed)
+    .execute(db)
+    .await?;
 
     spinner.finish_and_clear();
 

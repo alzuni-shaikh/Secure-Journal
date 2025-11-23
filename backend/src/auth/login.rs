@@ -27,14 +27,14 @@ pub async fn login_flow(db: &DbPool) -> Result<Option<User>> {
     std::io::Write::flush(&mut std::io::stdout())?;
     let password = read_password()?;
 
-    // Spinner during DB check
+    // Spinner
     let spinner = ProgressBar::new_spinner();
     spinner.set_message("Checking credentials...");
     spinner.enable_steady_tick(std::time::Duration::from_millis(120));
 
-    // Query user
+    // FIXED: correct SQLite placeholder (?1)
     let row = sqlx::query(
-        "SELECT id, username, password_hash FROM users WHERE username = ?"
+        "SELECT id, username, password_hash FROM users WHERE username = ?1"
     )
     .bind(&username)
     .fetch_optional(db)
@@ -42,6 +42,7 @@ pub async fn login_flow(db: &DbPool) -> Result<Option<User>> {
 
     spinner.finish_and_clear();
 
+    // User not found
     let Some(row) = row else {
         println!("{}", "No such user.".red());
         return Ok(None);
@@ -49,7 +50,7 @@ pub async fn login_flow(db: &DbPool) -> Result<Option<User>> {
 
     let stored_hash: String = row.get("password_hash");
 
-    // Verify with Argon2
+    // Verify Argon2
     let parsed_hash = PasswordHash::new(&stored_hash)?;
     if Argon2::default().verify_password(password.as_bytes(), &parsed_hash).is_ok() {
         println!("{}", "Login successful!".green());
@@ -58,7 +59,7 @@ pub async fn login_flow(db: &DbPool) -> Result<Option<User>> {
             id: row.get("id"),
             username: row.get("username"),
             password_hash: stored_hash,
-            password: None, 
+            password: None,
         };
 
         Ok(Some(user))
@@ -67,4 +68,3 @@ pub async fn login_flow(db: &DbPool) -> Result<Option<User>> {
         Ok(None)
     }
 }
-

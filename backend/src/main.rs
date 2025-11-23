@@ -17,7 +17,7 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let db = db::init_db().await?;
+    let db = db::connect().await?;
     main_menu(&db).await;
     Ok(())
 }
