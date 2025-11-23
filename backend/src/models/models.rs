@@ -5,13 +5,12 @@ pub struct User {
     pub id: i64,
     pub username: String,
     pub password_hash: String,
-    pub password: Option<String>
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct JournalEntry {
     pub id: Option<i64>,
-    pub user: String, 
+    pub user_id: String,
     pub title: String,
     pub content: String,
     pub tags: Vec<String>,

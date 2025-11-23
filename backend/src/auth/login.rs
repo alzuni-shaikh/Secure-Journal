@@ -9,7 +9,7 @@ use indicatif::ProgressBar;
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 
 #[derive(Deserialize)]
-pub struct AuthRequest {
+pub struct _AuthRequest {
     pub username: String,
     pub password: String,
 }
@@ -59,7 +59,6 @@ pub async fn login_flow(db: &DbPool) -> Result<Option<User>> {
             id: row.get("id"),
             username: row.get("username"),
             password_hash: stored_hash,
-            password: None,
         };
 
         Ok(Some(user))

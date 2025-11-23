@@ -13,7 +13,7 @@ use crate::auth::validate::validate_creds;
 use indicatif::{ProgressBar, ProgressStyle};
 
 #[derive(Deserialize)]
-pub struct AuthRequest {
+pub struct _AuthRequest {
     pub username: String,
     pub password: String,
 }

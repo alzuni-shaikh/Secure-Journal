@@ -1,7 +1,7 @@
 use crate::db::DbPool;
 use crate::models::models::User;
 
-use anyhow::{Result, bail};
+use anyhow::Result;
 use bcrypt::verify;
 use sqlx::Row;
 
@@ -37,6 +37,5 @@ pub async fn login_api(pool: &DbPool, username: &str, password: &str) -> Result<
         id,
         username,
         password_hash,
-        password: None, // never expose real password
     }))
 }

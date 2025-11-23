@@ -1,51 +1,43 @@
-use argon2::{
-    Argon2,
-    password_hash::{PasswordHasher, SaltString},
-};
+use anyhow::Result;
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
-use rand::rngs::OsRng;
-
 use std::fs::File;
 use std::io::Write;
 
 use crate::models::models::JournalEntry;
 
-pub fn export_to_md(entries: &[JournalEntry], file_path: &str) -> anyhow::Result<()> {
-    //progresbar
+pub fn export_to_md(entries: &[JournalEntry], file_path: &str) -> Result<()> {
     let bar = ProgressBar::new(entries.len() as u64);
     bar.set_style(
         ProgressStyle::default_bar()
-            .template(
-                "{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} entries",
-            )
+            .template("{spinner:.green} [{elapsed_precise}] {bar:40.cyan/blue} {pos}/{len}")
             .unwrap()
-            .progress_chars("#>-"),
+            .progress_chars("=> "),
     );
 
-    //hashing
-    let mut rng = OsRng;
-    let salt = SaltString::generate(&mut rng);
-    let argon2 = Argon2::default();
-    let hash = argon2.hash_password(file_path.as_bytes(), &salt)?;
-    println!("Export hash: {}", hash.to_string().bright_black());
-
-
-    //write file
     let mut file = File::create(file_path)?;
-    for (i, entry) in entries.iter().enumerate() {
-        writeln!(file, "# {}\n", entry.title)?;
-        writeln!(file, "_created: {}_\n", entry.created_at)?;
-        writeln!(file, "{}\n", entry.content)?;
-        writeln!(file, "---\n")?;
+
+    for (idx, entry) in entries.iter().enumerate() {
+        writeln!(file, "# {}", entry.title)?;
+        writeln!(file, "_created: {}_", entry.created_at)?;
+        writeln!(file, "_updated: {}_\n", entry.updated_at)?;
+        writeln!(file, "{}", entry.content)?;
+        
+        if !entry.tags.is_empty() {
+            writeln!(file, "_tags: {}_", entry.tags.join(", "))?;
+        }
+
+        writeln!(file, "\n---\n")?;
 
         bar.inc(1);
-        if i % 10 == 0 {
-            bar.set_message(format!("Exported {}", entry.title).green().to_string());
+
+        if idx % 10 == 0 {
+            bar.set_message(format!("Exported '{}'", entry.title));
         }
     }
 
     bar.finish_with_message("Export complete!");
-    println!("{}", "Journal exported successfully..!".green());
+    println!("{}", "Journal exported successfully!".green());
+
     Ok(())
 }

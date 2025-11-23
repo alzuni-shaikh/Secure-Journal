@@ -218,7 +218,7 @@ pub async fn get_entries_for_user(db: &DbPool, user: &User) -> Result<Vec<Journa
     for row in rows {
         entries.push(JournalEntry {
             id: Some(row.get::<i64, _>("id")),
-            user: user.username.clone(),
+            user_id: user.username.clone(),
             title: row.get("title"),
             content: row.get("content"),
             tags: serde_json::from_str(&row.get::<String, _>("tags")).unwrap_or_default(),

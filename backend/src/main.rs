@@ -10,6 +10,8 @@ use common::utils::main_menu;
 use db::DbPool;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use axum::{Server, Router, routing::post};
+use tokio::net::TcpListener;
 
 pub struct AppState {
     pub db: DbPool,
@@ -18,9 +20,17 @@ pub struct AppState {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let db = db::connect().await?;
-    main_menu(&db).await;
+    let state = Arc::new(AppState { db });
+
+    // spawn Axum server in the background
+    tokio::spawn(start_server(state.clone()));
+
+    // run CLI
+    main_menu(&state.db).await;
+
     Ok(())
 }
+
 
 #[derive(Deserialize)]
 struct AuthRequest {
@@ -68,4 +78,25 @@ async fn api_signup(
             message: format!("Error: {}", e),
         }),
     }
+}
+
+pub async fn start_server(state: Arc<AppState>) {
+    let app = Router::new()
+        .route("/api/login", post(api_login))
+        .route("/api/signup", post(api_signup))
+        .with_state(state);
+
+    let _listener = TcpListener::bind("0.0.0.0:8000")
+        .await
+        .expect("Failed to bind port");
+
+    println!("HTTP API running on http://localhost:8000");
+
+    Server::bind(&"0.0.0.0:8000".parse().unwrap())
+    .serve(app.into_make_service())
+    .await
+    .unwrap();
+    // axum::serve(listener, app)
+    //     .await
+    //     .unwrap();
 }

@@ -1,4 +1,4 @@
-use sqlx::{SqlitePool, Sqlite};
+use sqlx::SqlitePool;
 use anyhow::Result;
 
 pub type DbPool = SqlitePool;
