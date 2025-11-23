@@ -92,7 +92,7 @@ pub async fn start_server(state: Arc<AppState>) {
 
     println!("HTTP API running on http://localhost:8000");
 
-    Server::bind(&"0.0.0.0:8000".parse().unwrap())
+    Server::bind(&"0.0.0.0:9000".parse().unwrap()) //8000
     .serve(app.into_make_service())
     .await
     .unwrap();
