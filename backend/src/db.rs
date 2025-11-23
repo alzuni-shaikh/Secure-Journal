@@ -4,6 +4,6 @@ use anyhow::Result;
 pub type DbPool = SqlitePool;
 
 pub async fn connect() -> Result<DbPool> {
-    let pool = SqlitePool::connect("sqlite://journal.db").await?;
+    let pool = SqlitePool::connect("sqlite://data/journal.db").await?;
     Ok(pool)
 }
