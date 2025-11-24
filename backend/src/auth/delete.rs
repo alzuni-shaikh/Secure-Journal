@@ -19,13 +19,11 @@ pub async fn delete_user(db: &DbPool, user: &User) -> Result<()> {
         return Ok(());
     }
 
-    // Delete all entries by that user
     sqlx::query("DELETE FROM entries WHERE user_id = ?1")
         .bind(user.id)
         .execute(db)
         .await?;
 
-    // Delete the user account itself
     sqlx::query("DELETE FROM users WHERE id = ?1")
         .bind(user.id)
         .execute(db)

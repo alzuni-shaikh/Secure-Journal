@@ -22,10 +22,8 @@ async fn main() -> anyhow::Result<()> {
     let db = db::connect().await?;
     let state = Arc::new(AppState { db });
 
-    // spawn Axum server in the background
     tokio::spawn(start_server(state.clone()));
 
-    // run CLI
     main_menu(&state.db).await;
 
     Ok(())

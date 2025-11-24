@@ -15,24 +15,20 @@ pub struct _AuthRequest {
 }
 
 pub async fn login_flow(db: &DbPool) -> Result<Option<User>> {
-    // Username prompt
     let mut username = String::new();
     print!("{} ", "Enter username:".blue());
     std::io::Write::flush(&mut std::io::stdout())?;
     std::io::stdin().read_line(&mut username)?;
     let username = username.trim().to_string();
 
-    // Password prompt (hidden)
     print!("{} ", "Enter password:".blue());
     std::io::Write::flush(&mut std::io::stdout())?;
     let password = read_password()?;
 
-    // Spinner
     let spinner = ProgressBar::new_spinner();
     spinner.set_message("Checking credentials...");
     spinner.enable_steady_tick(std::time::Duration::from_millis(120));
 
-    // FIXED: correct SQLite placeholder (?1)
     let row = sqlx::query(
         "SELECT id, username, password_hash FROM users WHERE username = ?1"
     )
@@ -42,7 +38,6 @@ pub async fn login_flow(db: &DbPool) -> Result<Option<User>> {
 
     spinner.finish_and_clear();
 
-    // User not found
     let Some(row) = row else {
         println!("{}", "No such user.".red());
         return Ok(None);
@@ -50,7 +45,6 @@ pub async fn login_flow(db: &DbPool) -> Result<Option<User>> {
 
     let stored_hash: String = row.get("password_hash");
 
-    // Verify Argon2
     let parsed_hash = PasswordHash::new(&stored_hash)?;
     if Argon2::default().verify_password(password.as_bytes(), &parsed_hash).is_ok() {
         println!("{}", "Login successful!".green());

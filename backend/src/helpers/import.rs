@@ -58,13 +58,11 @@ pub fn import_md(file_path: &str) -> Result<Vec<JournalEntry>> {
             // end of entry
         }
         else {
-            // body content line
             current.content.push_str(line);
             current.content.push('\n');
         }
     }
 
-    // Last entry
     if !current.title.is_empty() {
         entries.push(current);
     }

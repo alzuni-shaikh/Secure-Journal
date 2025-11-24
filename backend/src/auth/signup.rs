@@ -19,22 +19,18 @@ pub struct _AuthRequest {
 }
 
 pub async fn signup_flow(db: &DbPool) -> Result<()> {
-    // Username
     let username = Input::<String>::new()
         .with_prompt("Choose a Username")
         .interact()?;
 
-    // Password
     println!("Choose a Password:");
     let password = read_password()?;
 
-    // Validate input
     if let Err(e) = validate_creds(&username, &password) {
         println!("{}", format!("{}", e).bright_red());
         return Ok(());
     }
 
-    // Spinner checking if username exists
     let spinner = ProgressBar::new_spinner();
     spinner.set_message("Checking if username is available..");
     spinner.enable_steady_tick(Duration::from_millis(50));
@@ -45,7 +41,6 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
             .unwrap(),
     );
 
-    // FIXED: SQLite placeholders (?1)
     let existing = sqlx::query(
         "SELECT id FROM users WHERE username = ?1"
     )
@@ -60,7 +55,6 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
         return Ok(());
     }
 
-    // Confirm password
     println!("Confirm password:");
     let confirm_pass = read_password()?;
     if confirm_pass != password {
@@ -68,7 +62,6 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
         return Ok(());
     }
 
-    // Hash animation (non-blocking)
     let bar = ProgressBar::new(100);
     bar.set_style(
         ProgressStyle::with_template(
@@ -84,7 +77,6 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
         sleep(Duration::from_millis(12)).await;
     }
 
-    // Hash password using Argon2id
     let salt = SaltString::generate(&mut OsRng);
     let hashed = Argon2::default()
         .hash_password(password.as_bytes(), &salt)?
@@ -92,7 +84,6 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
 
     bar.finish_with_message("Password Hashed Successfully..");
 
-    // Insert user
     let spinner = ProgressBar::new_spinner();
     spinner.set_message("Creating your account :)");
     spinner.enable_steady_tick(Duration::from_millis(100));
@@ -103,7 +94,6 @@ pub async fn signup_flow(db: &DbPool) -> Result<()> {
             .unwrap(),
     );
 
-    // FIXED: SQLite insert syntax
     sqlx::query(
         "INSERT INTO users (username, password_hash) VALUES (?1, ?2)"
     )

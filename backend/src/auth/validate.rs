@@ -1,10 +1,7 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use colored::*;
 
-/// Validate username and password using simple security rules.
-/// Returns Ok(()) if valid, otherwise returns a descriptive error.
 pub fn validate_creds(username: &str, password: &str) -> Result<()> {
-    // ---- USERNAME RULES ----
     let username = username.trim();
 
     if username.is_empty() {
@@ -22,9 +19,12 @@ pub fn validate_creds(username: &str, password: &str) -> Result<()> {
         bail!("{}", "Username cannot contain spaces.".yellow());
     }
 
-    // ---- PASSWORD RULES ----
+    //
     if password.len() < 6 {
-        bail!("{}", "Password must be at least 6 characters long.".yellow());
+        bail!(
+            "{}",
+            "Password must be at least 6 characters long.".yellow()
+        );
     }
 
     if !password.chars().any(|c| c.is_uppercase()) {
@@ -42,10 +42,7 @@ pub fn validate_creds(username: &str, password: &str) -> Result<()> {
     }
 
     if !password.chars().any(|c| c.is_ascii_digit()) {
-        bail!(
-            "{}",
-            "Password must contain at least one number.".yellow()
-        );
+        bail!("{}", "Password must contain at least one number.".yellow());
     }
 
     const SPECIALS: &str = "!@#$%^&*()-_=+[]{};:,.<>?";

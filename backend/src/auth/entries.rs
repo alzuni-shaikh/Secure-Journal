@@ -8,9 +8,6 @@ use sqlx::Row;
 use crate::models::models::{JournalEntry, User};
 use crate::db::DbPool;
 
-// -------------------------------------
-// CREATE NEW ENTRY
-// -------------------------------------
 pub async fn new_entry(db: &DbPool, user: &User) -> Result<()> {
     let title = Input::<String>::new()
         .with_prompt("Title")
@@ -53,9 +50,6 @@ pub async fn new_entry(db: &DbPool, user: &User) -> Result<()> {
     Ok(())
 }
 
-// -------------------------------------
-// DELETE ENTRY
-// -------------------------------------
 pub async fn delete_entry(db: &DbPool, user: &User) -> Result<()> {
     let entries = get_entries_for_user(db, user).await?;
 
@@ -87,9 +81,6 @@ pub async fn delete_entry(db: &DbPool, user: &User) -> Result<()> {
     Ok(())
 }
 
-// -------------------------------------
-// LIST USERS
-// -------------------------------------
 pub async fn list_users(db: &DbPool) -> Result<()> {
     let rows = sqlx::query("SELECT username FROM users")
         .fetch_all(db)
@@ -104,9 +95,6 @@ pub async fn list_users(db: &DbPool) -> Result<()> {
     Ok(())
 }
 
-// -------------------------------------
-// LIST ENTRIES FOR USER
-// -------------------------------------
 pub async fn list_entries(db: &DbPool, user: &User) -> Result<()> {
     let rows = sqlx::query(
         "SELECT id, title, content, tags, created_at, updated_at
@@ -140,9 +128,6 @@ pub async fn list_entries(db: &DbPool, user: &User) -> Result<()> {
     Ok(())
 }
 
-// -------------------------------------
-// UPDATE ENTRY
-// -------------------------------------
 pub async fn update_entry(db: &DbPool, user: &User) -> Result<()> {
     let entries = get_entries_for_user(db, user).await?;
 
@@ -201,9 +186,6 @@ pub async fn update_entry(db: &DbPool, user: &User) -> Result<()> {
     Ok(())
 }
 
-// -------------------------------------
-// GET ENTRIES FOR USER (Reusable Helper)
-// -------------------------------------
 pub async fn get_entries_for_user(db: &DbPool, user: &User) -> Result<Vec<JournalEntry>> {
     let rows = sqlx::query(
         "SELECT id, title, content, tags, created_at, updated_at

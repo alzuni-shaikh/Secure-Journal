@@ -40,7 +40,6 @@ pub async fn main_menu(db: &Pool<Sqlite>) {
             .unwrap();
 
         let result = match choice {
-            // LOGIN
             0 => match login_flow(db).await {
                 Ok(Some(user)) => {
                     println!("Logged in as {}", user.username.green());
@@ -53,14 +52,8 @@ pub async fn main_menu(db: &Pool<Sqlite>) {
                 }
                 Err(e) => Err(e),
             },
-
-            // SIGNUP
             1 => signup_flow(db).await,
-
-            // LIST USERS
             2 => list_users(db).await,
-
-            // NEW ENTRY
             3 => match &curr_user {
                 Some(user) => new_entry(db, user).await,
                 None => {
@@ -68,8 +61,6 @@ pub async fn main_menu(db: &Pool<Sqlite>) {
                     Ok(())
                 }
             },
-
-            // VIEW ENTRIES
             4 => match &curr_user {
                 Some(user) => list_entries(db, user).await,
                 None => {
@@ -77,8 +68,6 @@ pub async fn main_menu(db: &Pool<Sqlite>) {
                     Ok(())
                 }
             },
-
-            // UPDATE ENTRY
             5 => match &curr_user {
                 Some(user) => update_entry(db, user).await,
                 None => {
@@ -86,8 +75,6 @@ pub async fn main_menu(db: &Pool<Sqlite>) {
                     Ok(())
                 }
             },
-
-            // DELETE ENTRY
             6 => match &curr_user {
                 Some(user) => delete_entry(db, user).await,
                 None => {
@@ -95,8 +82,6 @@ pub async fn main_menu(db: &Pool<Sqlite>) {
                     Ok(())
                 }
             },
-
-            // DELETE USER
             7 => {
                 if let Some(user) = &curr_user {
                     let _ = delete_user(db, user).await;
@@ -106,39 +91,33 @@ pub async fn main_menu(db: &Pool<Sqlite>) {
                 }
                 Ok(())
             }
-
-            // EXPORT
             8 => {
-    if let Some(user) = &curr_user {
-        let entries_res = get_entries_for_user(&db, user).await;
+                if let Some(user) = &curr_user {
+                    let entries_res = get_entries_for_user(&db, user).await;
 
-        match entries_res {
-            Ok(entries) => {
-                let file_name = format!(
-                    "journal_export_{}_{}.md",
-                    user.username,
-                    chrono::Local::now().format("%Y-%m-%d_%H-%M")
-                );
+                    match entries_res {
+                        Ok(entries) => {
+                            let file_name = format!(
+                                "journal_export_{}_{}.md",
+                                user.username,
+                                chrono::Local::now().format("%Y-%m-%d_%H-%M")
+                            );
 
-                // FIX: pass &[JournalEntry]
-                if let Err(e) = export_to_md(&entries, &file_name) {
-                    eprintln!("{}", format!("Export failed: {:?}", e).bright_red());
+                            if let Err(e) = export_to_md(&entries, &file_name) {
+                                eprintln!("{}", format!("Export failed: {:?}", e).bright_red());
+                            } else {
+                                println!("{}", format!("Exported to {}", file_name).green());
+                            }
+                        }
+                        Err(e) => {
+                            eprintln!("{}", format!("Failed to fetch entries: {:?}", e).red());
+                        }
+                    }
                 } else {
-                    println!("{}", format!("Exported to {}", file_name).green());
+                    println!("{}", "Please login first".red());
                 }
+                Ok(())
             }
-            Err(e) => {
-                eprintln!("{}", format!("Failed to fetch entries: {:?}", e).red());
-            }
-        }
-    } else {
-        println!("{}", "Please login first".red());
-    }
-    Ok(())
-}
-
-
-            // IMPORT
             9 => {
                 println!("{}", "Enter path to .md file:".cyan());
                 let mut path = String::new();
@@ -156,15 +135,11 @@ pub async fn main_menu(db: &Pool<Sqlite>) {
 
                 Ok(())
             }
-
-            // LOGOUT
             10 => {
                 curr_user = None;
                 println!("{}", "Logged out".yellow());
                 Ok(())
             }
-
-            // EXIT
             11 => {
                 println!("{}", "Goodbye!".cyan());
                 return;
@@ -173,7 +148,6 @@ pub async fn main_menu(db: &Pool<Sqlite>) {
             _ => Ok(()),
         };
 
-        // Display any top-level errors
         if let Err(err) = result {
             eprintln!("{}", format!("Error: {:?}", err).bright_red());
         }
