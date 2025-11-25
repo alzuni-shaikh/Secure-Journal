@@ -3,9 +3,9 @@ use colored::*;
 use anyhow::Result;
 use crate::db::DbPool;
 use serde::Deserialize;
+use indicatif::ProgressBar;
 use rpassword::read_password;
 use crate::models::models::User;
-use indicatif::ProgressBar;
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 
 #[derive(Deserialize)]

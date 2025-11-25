@@ -1,18 +1,49 @@
-use thiserror::Error;
+use std::fmt;
+use anyhow::Error as AnyhowError;
 
-#[derive(Debug, Error)]
+#[derive(Debug)]
 pub enum _AppError {
-    #[error("Database error: {0}")]
-    Database(#[from] surrealdb::Error),
+    Database(sqlx::Error),
 
-    #[error("Input error: {0}")]
-    Input(String),
+    Password(argon2::password_hash::Error),
 
-    #[error("Authentication error: {0}")]
-    Auth(String),
+    _Input(String),
 
-    #[error("Unknown error: {0}")]
+    _Auth(String),
+
     Other(String),
 }
 
 pub type _Result<T> = std::result::Result<T, _AppError>;
+
+impl fmt::Display for _AppError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            _AppError::Database(e) => write!(f, "Database error: {}", e),
+            _AppError::Password(e) => write!(f, "Password hash error: {}", e),
+            _AppError::_Input(e) => write!(f, "Input error: {}", e),
+            _AppError::_Auth(e) => write!(f, "Authentication error: {}", e),
+            _AppError::Other(e) => write!(f, "Unknown error: {}", e),
+        }
+    }
+}
+
+impl std::error::Error for _AppError {}
+
+impl From<sqlx::Error> for _AppError {
+    fn from(e: sqlx::Error) -> Self {
+        _AppError::Database(e)
+    }
+}
+
+impl From<argon2::password_hash::Error> for _AppError {
+    fn from(e: argon2::password_hash::Error) -> Self {
+        _AppError::Password(e)
+    }
+}
+
+impl From<AnyhowError> for _AppError {
+    fn from(e: AnyhowError) -> Self {
+        _AppError::Other(e.to_string())
+    }
+}
