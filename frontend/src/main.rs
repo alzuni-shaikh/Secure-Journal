@@ -27,18 +27,15 @@ pub enum Route {
     NewEntry {},
 }
 
-// Assets - define for all targets to avoid compile errors
 const MAIN_CSS: &str = "/assets/main.css";
 const TAILWIND_CSS: &str = "/assets/tailwind.css";
 const FAVICON: &str = "/assets/favicon.ico";
 
-/// WEB entrypoint
 #[cfg(target_arch = "wasm32")]
 fn main() {
     dioxus::launch(App);
 }
 
-/// DESKTOP entrypoint
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
     dioxus::launch(App);
@@ -49,7 +46,6 @@ fn App() -> Element {
     use_context_provider(|| Signal::new(AppState::default()));
 
     rsx! {
-        // Conditionally include stylesheets only for web
         if cfg!(target_arch = "wasm32") {
             document::Link { rel: "icon", href: FAVICON }
             document::Link { rel: "stylesheet", href: MAIN_CSS }
