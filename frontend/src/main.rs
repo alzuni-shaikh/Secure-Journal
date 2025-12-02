@@ -45,7 +45,7 @@ fn main() {
 }
 
 #[component]
-fn app() -> Element {
+fn App() -> Element {
     use_context_provider(|| Signal::new(AppState::default()));
 
     rsx! {
