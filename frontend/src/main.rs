@@ -1,0 +1,61 @@
+mod api;
+mod components;
+mod models;
+mod pages;
+mod state;
+
+use dioxus::prelude::*;
+use crate::pages::login::Login;
+use crate::pages::signup::Signup;
+use crate::pages::entries::Entries;
+use crate::pages::new_entry::NewEntry;
+use crate::pages::home::Home;
+use state::AppState;
+
+#[derive(Debug, Clone, Routable, PartialEq)]
+#[rustfmt::skip]
+pub enum Route {
+    #[route("/")]
+    Login {},
+    #[route("/signup")]
+    Signup {},
+    #[route("/home")]
+    Home {},
+    #[route("/entries")]
+    Entries {},
+    #[route("/new-entry")]
+    NewEntry {},
+}
+
+// Assets - define for all targets to avoid compile errors
+const MAIN_CSS: &str = "/assets/main.css";
+const TAILWIND_CSS: &str = "/assets/tailwind.css";
+const FAVICON: &str = "/assets/favicon.ico";
+
+/// WEB entrypoint
+#[cfg(target_arch = "wasm32")]
+fn main() {
+    dioxus::launch(App);
+}
+
+/// DESKTOP entrypoint
+#[cfg(not(target_arch = "wasm32"))]
+fn main() {
+    dioxus::launch(App);
+}
+
+#[component]
+fn App() -> Element {
+    use_context_provider(|| Signal::new(AppState::default()));
+
+    rsx! {
+        // Conditionally include stylesheets only for web
+        if cfg!(target_arch = "wasm32") {
+            document::Link { rel: "icon", href: FAVICON }
+            document::Link { rel: "stylesheet", href: MAIN_CSS }
+            document::Link { rel: "stylesheet", href: TAILWIND_CSS }
+        }
+        
+        Router::<Route> {}
+    }
+}
