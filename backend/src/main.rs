@@ -20,6 +20,7 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    println!("CWD = {:?}", std::env::current_dir()?);
     let db = db::connect().await?;
     let state = Arc::new(AppState { db });
 
