@@ -1,5 +1,6 @@
 mod auth;
 mod common;
+
 mod db;
 mod helpers;
 mod models;
