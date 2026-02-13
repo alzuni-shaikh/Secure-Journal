@@ -2,20 +2,12 @@
 name = "secure_journal"
 default_platform = "web"
 
-[web.app]
+[web]
 title = "Secure Journal"
+assets = ["assets"]
 
 [web.watcher]
 reload_html = true
 
-[web.asset]
-# Copy this folder to /dist/assets/
-include = ["assets"]
-
-[web.resource]
-# Tell Dioxus to inject these files into <head>
-style = ["/assets/main.css", "/assets/tailwind.css"]
-script = []
-
 [web.resource.dev]
-script = []
+style = ["/main.css", "/tailwind.css"]
